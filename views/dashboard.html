@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Socket.IO Estilo Discord</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #36393f;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .chat-container {
+        width: 90%;
+        max-width: 600px;
+        height: 90%;
+        background-color: #2f3136;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        list-style: none;
+      }
+
+      #messages li {
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        background-color: #40444b;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+      }
+
+      #messages li.left {
+        align-self: flex-start;
+      }
+
+      #messages li.right {
+        background-color: #5865f2;
+        align-self: flex-end;
+        color: #fff;
+      }
+
+      form {
+        display: flex;
+        padding: 15px;
+        background-color: #2f3136;
+        border-top: 1px solid #202225;
+      }
+
+      form input {
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        margin-right: 5px;
+        font-size: 16px;
+        flex: 1;
+        background-color: #40444b;
+        color: #fff;
+      }
+
+      form input::placeholder {
+        color: #b9bbbe;
+      }
+
+      form button {
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        background-color: #5865f2;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      form button:hover {
+        background-color: #4752c4;
+      }
+
+      #messages::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      #messages::-webkit-scrollbar-thumb {
+        background-color: #5865f2;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <ul id="messages"></ul>
+      <form id="chat-form">
+        <input id="nombre" placeholder="Username" autocomplete="off" />
+        <input id="m" placeholder="Escribe un mensaje" autocomplete="off" />
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      // Manejar el envío de mensajes
+      document.getElementById('chat-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const nombre = document.getElementById('nombre').value || 'Anónimo';
+        const mensaje = document.getElementById('m').value.trim();
+
+        if (mensaje) {
+          const msgObj = { nombre, mensaje };
+          socket.emit('Evento-Mensaje-Server', JSON.stringify(msgObj));
+          document.getElementById('m').value = ''; // Limpiar el input
+        }
+      });
+
+      // Manejar la recepción de mensajes
+      socket.on('Evento-Mensaje-Server', function (msg) {
+        const { nombre, mensaje } = JSON.parse(msg);
+        addMessage(nombre, mensaje);
+      });
+
+      // Agregar mensaje al chat
+      function addMessage(nombre, mensaje) {
+        const li = document.createElement('li');
+        li.textContent = `${nombre}: ${mensaje}`;
+
+        // Alineación del mensaje
+        li.classList.add(nombre === document.getElementById('nombre').value ? 'right' : 'left');
+
+        document.getElementById('messages').appendChild(li);
+        scrollToBottom();
+      }
+
+      // Desplazarse automáticamente al final del chat
+      function scrollToBottom() {
+        const messages = document.getElementById('messages');
+        messages.scrollTop = messages.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
