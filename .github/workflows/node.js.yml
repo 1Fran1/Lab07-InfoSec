@@ -7,12 +7,34 @@ on:
     branches: [ "main" ]
 
 jobs:
-  
+  # Job build: Solo para instalar las dependencias
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]  # Puedes probar varias versiones de Node.js para depuración
+        node-version: [20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+  # Job test: Ejecuta los tests en un bloque separado
+  test:
+    runs-on: ubuntu-latest
+    needs: build  # Asegura que este job solo se ejecute después del job build
+
+    strategy:
+      matrix:
+        node-version: [20.x]
 
     steps:
     - name: Checkout code
@@ -26,13 +48,18 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    # Listar paquetes instalados (opcional, para depuración)
+    - name: List installed packages
+      run: npm list
+
+    # Ejecutar las pruebas
     - name: Run tests
       run: npm test
 
-  # Job para construir la imagen Docker
+  # Job docker: Construye y empuja la imagen Docker después de que los tests se hayan completado
   docker:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test  # Solo se ejecuta si los tests pasan
 
     steps:
     - name: Checkout code
