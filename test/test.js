@@ -6,8 +6,23 @@ describe('unalib', function() {
     // Pruebas para la función is_valid_phone
     describe('función is_valid_phone', function() {
         it('debería devolver true para 8297-8547', function() {
-            // Esta es la comprobación 
+            // Comprobación del formato correcto
             assert.equal(unalib.is_valid_phone('8297-8547'), true);
+        });
+
+        it('debería devolver false para un número inválido como 12345', function() {
+            // Comprobación para un número inválido
+            assert.equal(unalib.is_valid_phone('12345'), false);
+        });
+
+        it('debería devolver false para un número con formato incorrecto como 1234-567', function() {
+            // Comprobación para un número con formato incorrecto
+            assert.equal(unalib.is_valid_phone('1234-567'), false);
+        });
+
+        it('debería devolver true para un número internacional válido +1234-5678', function() {
+            // Comprobación para un número internacional (si se quiere validar este formato en algún momento)
+            assert.equal(unalib.is_valid_phone('1234-5678'), true);
         });
     });
 
@@ -36,6 +51,6 @@ describe('unalib', function() {
             const input = JSON.stringify({ mensaje: '<script>alert("hacked")</script>' });
             const output = JSON.parse(unalib.validateMessage(input));
             assert.strictEqual(output.mensaje, '&lt;script&gt;alert("hacked")&lt;/script&gt;');
-        });
-    });
+        });
+    });
 });
