@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]  # Puedes probar varias versiones de Node.js para depuración
+        node-version: [20.x]  # Puedes probar varias versiones de Node.js para depuración
 
     steps:
     - name: Checkout code
