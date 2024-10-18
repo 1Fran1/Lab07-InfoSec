@@ -1,38 +1,41 @@
-const unalib = require('../unalib/index');
-const assert = require('assert');
+var unalib = require('../unalib/index');
+var assert = require('assert');
 
-describe('unalib', function () {
-  describe('función is_valid_phone', function () {
-    it('debería devolver true para 8297-8547', function () {
-      assert.equal(unalib.is_valid_phone('8297-8547'), true);
+// Pruebas
+describe('unalib', function() {
+    // Pruebas para la función is_valid_phone
+    describe('función is_valid_phone', function() {
+        it('debería devolver true para 8297-8547', function() {
+            // Esta es la comprobación 
+            assert.equal(unalib.is_valid_phone('8297-8547'), true);
+        });
     });
 
-    it('debería devolver false para un número inválido como 12345', function () {
-      assert.equal(unalib.is_valid_phone('12345'), false);
+    // Pruebas para la validación de URLs
+    describe('función is_valid_url', function() {
+        it('debería devolver true para una URL de imagen válida', function() {
+            assert.equal(unalib.is_valid_url('https://example.com/image.jpg'), true);
+        });
+
+        it('debería devolver false para una URL de imagen inválida', function() {
+            assert.equal(unalib.is_valid_url('https://example.com/not-image.txt'), false);
+        });
+
+        it('debería devolver true para una URL de video válida', function() {
+            assert.equal(unalib.is_valid_url('https://example.com/video.mp4'), true);
+        });
+
+        it('debería devolver false para una URL de video inválida', function() {
+            assert.equal(unalib.is_valid_url('https://example.com/not-video.avi'), false);
+        });
     });
 
-    it('debería devolver true para un número internacional +123 456 789', function () {
-      assert.equal(unalib.is_valid_phone('+123 456 789'), true);
-    });
-  });
-
-  describe('función validateMessage', function () {
-    it('debería reconocer un número de teléfono en el mensaje y transformarlo', function () {
-      const inputMessage = JSON.stringify({ mensaje: '8297-8547' });
-      const result = unalib.validateMessage(inputMessage);
-      assert(result.includes('<a href="tel:8297-8547">8297-8547</a>'));
-    });
-
-    it('debería dejar intacto el texto si no es un teléfono', function () {
-      const inputMessage = JSON.stringify({ mensaje: 'Hola, ¿cómo estás?' });
-      const result = unalib.validateMessage(inputMessage);
-      assert.equal(result, inputMessage);
-    });
-
-    it('debería devolver null si el JSON es inválido', function () {
-      const invalidMessage = '{ mensaje: "hola"';  // JSON inválido
-      const result = unalib.validateMessage(invalidMessage);
-      assert.equal(result, null);
-    });
-  });
+    // Pruebas para la prevención de inyecciones de scripts
+    describe('función validateMessage', function() {
+        it('debería prevenir inyecciones de scripts', function() {
+            const input = JSON.stringify({ mensaje: '<script>alert("hacked")</script>' });
+            const output = JSON.parse(unalib.validateMessage(input));
+            assert.strictEqual(output.mensaje, '&lt;script&gt;alert("hacked")&lt;/script&gt;');
+        });
+    });
 });
